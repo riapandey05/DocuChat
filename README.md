@@ -138,4 +138,4 @@ Built with love, curiosity, and desperation one night before exams 😄
 
 ---
 
-Want a **project logo, UI screenshot section, or GIF preview** added to this README? 😎
+
