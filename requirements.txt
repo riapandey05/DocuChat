@@ -12,3 +12,4 @@ sentence-transformers
 langchain-classic
 streamlit
 bs4
+gtts

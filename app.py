@@ -1,6 +1,7 @@
 ## RAG Q&A Conversation With PDF Including Chat History
 import os
 import gradio as gr
+from gtts import gTTS
 
 import streamlit as st  # <- REMOVE THIS IF YOU DON’T NEED IT ANYWHERE ELSE
 
@@ -15,11 +16,18 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
+from huggingface_hub import HfApi
 
-from dotenv import load_dotenv
-load_dotenv()
+# ---------------- HF SECRETS SETUP ----------------
+# On Hugging Face Spaces, add these in Settings ➜ Repository secrets:
+#   HUGGING_FACE_API_KEY
+#   GROQ_API_KEY
+HF_TOKEN = os.environ.get("HUGGING_FACE_API_KEY")
+GROQ_SECRET = os.environ.get("GROQ_API_KEY")
 
-os.environ['HF_TOKEN'] = os.getenv("HUGGING_FACE_API_KEY")
+if HF_TOKEN:
+    os.environ["HF_TOKEN"] = HF_TOKEN
+
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 # ------------------------------------------------------------------
@@ -44,6 +52,9 @@ def setup_rag_pipeline(api_key, uploaded_files, session_id):
     and conversational_rag_chain. Returns the chain and a status message.
     """
 
+    # Prefer HF secret if available; fall back to textbox value for local dev
+    api_key = GROQ_SECRET or api_key
+
     if not api_key:
         return None, "⚠️ Please enter your Groq API key first."
 
@@ -53,8 +64,7 @@ def setup_rag_pipeline(api_key, uploaded_files, session_id):
     # LLM
     llm = ChatGroq(groq_api_key=api_key, model_name="groq/compound")
 
-    # Process uploaded PDFs (same logic)
-        # Process uploaded PDFs (Gradio-compatible)
+    # Process uploaded PDFs (Gradio-compatible)
     documents = []
     for uploaded_file in uploaded_files:
         # Gradio can return dicts, paths, or file-like objects depending on version
@@ -74,7 +84,6 @@ def setup_rag_pipeline(api_key, uploaded_files, session_id):
         loader = PyPDFLoader(temppdf)
         docs = loader.load()
         documents.extend(docs)
-
 
     # Split and create embeddings for the documents
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=500)
@@ -175,7 +184,6 @@ def answer_question(user_input, session_id, chain, chat_history_ui):
     return chat_history_ui
 
 
-
 # ------------------------------------------------------------------
 # GRADIO UI
 # ------------------------------------------------------------------
@@ -230,7 +238,6 @@ with gr.Blocks() as demo:
             chatbot = gr.Chatbot(
                 label="💬 Chat with your PDFs",
                 height=430,
-                
             )
             user_question = gr.Textbox(
                 label="Ask a question about your PDFs",
