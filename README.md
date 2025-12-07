@@ -1,5 +1,5 @@
 
-# 📚 DocuChat — AI-Powered Conversational PDF Assistant
+# 📚 DocuChat — AI-Powered Conversational PDF Assistant (https://huggingface.co/spaces/riapandey/Docuchat)
 
 DocuChat is an intelligent RAG-based PDF assistant that allows users to **upload documents and interact with them like a chat**. Instead of scrolling through hundreds of pages, you can ask:
 
@@ -137,5 +137,6 @@ Built with love, curiosity, and desperation one night before exams 😄
 ### ⭐ If DocuChat helped you study better — don’t forget to star the repo!
 
 ---
+
 
 
